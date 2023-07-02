@@ -1,0 +1,49 @@
+---
+- hosts: webservers
+  become: true
+  connection: ssh
+  user: ansible
+  name: jenkins playbook
+
+
+  tasks:
+    - name: Install java on Redhat
+      yum:
+        name: java
+        state: present
+      when: ansible_os_family=="RedHat"
+
+
+    - name: Install java on Debian
+      apt:
+        name: default-jdk
+        state: present
+      when: ansible_os_family=="Debian"
+
+
+    - name: download jenkins on Redhat
+      get_url:
+        url: https://pkg.jenkins.io/redhat-stable/jenkins.repo
+        dest: /etc/yum.repos.d/jenkins.repo
+
+    - name: download jenkinskey
+      rpm_key:
+        key: https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+        state: present
+
+    - name: install jenkins
+      yum:
+        name: jenkins
+        state: present
+
+    - name: start jenkins service
+      service:
+        name: jenkins 
+        state: started
+        enabled: yes
+
+
+
+
+
+
